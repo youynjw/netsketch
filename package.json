@@ -1,0 +1,1 @@
+{"name":"netsketch","version":"1.0.0","private":true,"description":"本地优先的网络拓扑绘制工具","scripts":{"start":"node server.cjs","check":"node --check app.js && node --check label-layout.js && node --check server.cjs","test":"node --test test.cjs label-layout.test.cjs"}}
