@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="zh-CN">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>NetSketch · 机柜管理</title><link rel="stylesheet" href="racks.css"><link rel="stylesheet" href="shared-header.css"></head>
+<body>
+<header class="app-header unified-header"><a class="brand" href="index.html"><span class="network-logo" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 8h8M12 24h8M8 12v8M24 12v8"/><rect x="4" y="4" width="8" height="8" rx="2"/><rect x="20" y="4" width="8" height="8" rx="2"/><rect x="4" y="20" width="8" height="8" rx="2"/><rect x="20" y="20" width="8" height="8" rx="2"/></svg></span> NetSketch</a><nav aria-label="工作页面"><a href="index.html">网络拓扑</a><a href="racks.html" class="current" aria-current="page">机柜管理</a></nav><div class="header-actions"><button id="newProject">新建</button><button id="openProject">打开项目</button><button id="saveProject" class="primary">保存到本地</button><button id="exportSvg">导出 SVG</button><button id="exportPng">导出 PNG</button></div></header>
+<main class="app-layout">
+<aside class="room-sidebar"><div class="side-heading"><span class="eyebrow">LOCATIONS</span><button id="addRoom" class="icon-button" title="新建机房" aria-label="新建机房">＋</button></div><h2>机房与机柜</h2><div id="roomList"></div><div class="sidebar-bottom"><p>◉ 本地工作空间</p><small>草稿自动保存在此浏览器。<br>定期保存项目文件以便备份。</small><button id="loadDemo">载入示例机房</button></div></aside>
+<section class="workspace"><div class="workspace-heading"><div><div class="eyebrow">RACK INVENTORY</div><input id="projectName" aria-label="机柜项目名称" maxlength="200"><p><span id="roomCaption"></span> · <span id="saveStatus">仅本地保存</span></p></div><div class="heading-actions"><button id="editRoom">编辑机房</button><button id="addRack" class="primary">＋ 新建机柜</button></div></div>
+<div class="stats" id="stats"></div>
+<div class="toolbar"><div class="segmented" aria-label="机柜视角"><button id="frontView" class="active" aria-pressed="true">正面</button><button id="rearView" aria-pressed="false">背面</button></div><span class="toolbar-divider"></span><button id="addDevice">＋ 上架设备</button><button id="colorBrush" disabled aria-pressed="false" title="先选中设备，复制其已保存颜色"><span class="brush-swatch" aria-hidden="true"></span><span class="brush-label">颜色刷</span></button><button id="undo" title="撤销 Ctrl+Z" aria-label="撤销">↶</button><button id="redo" title="重做 Ctrl+Shift+Z">↷</button><div class="spacer"></div><input id="search" type="search" placeholder="查找设备 / 型号 / IP" aria-label="查找机柜设备"><button id="exportCsv">导出表格</button><button id="print">打印</button></div>
+<div class="board-scroll" id="boardScroll"><div class="board" id="board"></div></div>
+<footer><span id="hint">点击空闲 U 位上架设备 · 拖动设备调整落位</span><span>U 位由下向上编号</span></footer></section>
+<aside class="properties"><div class="property-heading"><div class="eyebrow">INSPECTOR</div><h2 id="inspectorTitle">落位详情</h2></div><div id="inspector"></div></aside>
+</main>
+<dialog id="editor"><form id="editorForm"><div class="eyebrow">RACK MANAGEMENT</div><h2 id="editorTitle"></h2><div id="editorFields"></div><p id="editorError" class="error" role="alert"></p><div class="dialog-actions"><button type="button" id="editorCancel">取消</button><button id="editorSubmit" class="primary" type="submit">保存</button></div></form></dialog>
+<input type="file" id="fileInput" accept=".json,.racks" hidden><div id="toast" role="status"></div><script src="rack-model.js"></script><script src="rack-export.js"></script><script src="racks.js"></script>
+</body></html>
