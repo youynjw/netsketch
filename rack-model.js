@@ -1,6 +1,6 @@
 (function(root){
   'use strict';
-  const TYPES=['服务器','交换机','路由器','防火墙','上网行为管理','存储 / NAS','监控录像机','配线架','UPS','光纤设备','理线架','盲板','其他'];
+  const TYPES=['服务器','交换机','路由器','防火墙','VPN 网关','运营商光猫 / Modem','无线控制器 / AC','上网行为管理','存储 / NAS','监控录像机','KVM 切换器','显示器','配线架','光纤配线架 / ODF','光纤收发器','UPS','PDU','光纤设备','理线架','盲板','其他'];
   const COLORS=['#5865dc','#169e91','#de9a32','#b56ecb','#5e82b6','#8793a5'];
   function id(){return globalThis.crypto?.randomUUID?.()||`r${Date.now().toString(36)}${Math.random().toString(36).slice(2)}`;}
   function empty(){return {format:'netsketch-racks',version:1,name:'机房落位记录',rooms:[],racks:[],devices:[],pdus:[]};}

@@ -7,7 +7,7 @@
     const unit=24,cardWidth=296,gap=24,columns=Math.min(4,racks.length),padding=24;
     const uses=new Map();for(const d of project.devices)for(const p of d.power)uses.set(`${p.pduId}:${p.outlet}`,{d,p});
     function railHeight(r,side){return project.pdus.filter(p=>p.rackId===r.id&&p.side===side).reduce((n,p)=>n+28+p.count*22+8,0);}
-    const heights=racks.map(r=>Math.max(r.units*unit,railHeight(r,'left'),railHeight(r,'right'))+110);
+    const heights=racks.map(r=>Math.max(r.units*unit,railHeight(r,'left'),railHeight(r,'right'))+82);
     const rowHeights=[];for(let i=0;i<heights.length;i+=columns)rowHeights.push(Math.max(...heights.slice(i,i+columns)));
     const width=padding*2+columns*cardWidth+(columns-1)*gap,height=110+rowHeights.reduce((s,n)=>s+n+gap,0);
     let parts=[],defs=[],rowY=86;
@@ -16,8 +16,10 @@
     parts.push(rect(0,0,width,height,'#f5f7fb','#f5f7fb'),text(24,33,project.name,21,'#26364c','font-weight="700"'),text(24,58,`${room?.name||''} · ${face==='rear'?'背面视图（左右镜像）':'正面视图'} · U 位由下向上编号 · 插座跟随设备颜色`,11,'#7b899e'));
     racks.forEach((r,index)=>{
       const col=index%columns,row=Math.floor(index/columns);if(col===0&&row>0)rowY+=rowHeights[row-1]+gap;
-      const x=padding+col*(cardWidth+gap),y=rowY,h=heights[index],top=y+76,left=x+49,innerWidth=198;
-      parts.push(rect(x,y,cardWidth,h,'white','#dbe2ed',10),text(x+15,y+25,r.name,14,'#26364c','font-weight="600"'),text(x+15,y+45,`${r.location||'未填写位置'} · ${r.units}U`,10,'#8793a5'));
+      const x=padding+col*(cardWidth+gap),y=rowY,h=heights[index],top=y+48,left=x+49,innerWidth=198;
+      const nameClip='rack-name-'+index,metaClip='rack-meta-'+index;
+      defs.push(`<clipPath id="${nameClip}">${rect(x+12,y+5,152,29,'white','none')}</clipPath><clipPath id="${metaClip}">${rect(x+172,y+5,112,29,'white','none')}</clipPath>`);
+      parts.push(rect(x,y,cardWidth,h,'white','#dbe2ed',10),text(x+12,y+25,r.name,13,'#26364c',`font-weight="600" clip-path="url(#${nameClip})"`),text(x+cardWidth-12,y+25,`${r.location||'未填写位置'} · ${r.units}U`,10,'#8793a5',`text-anchor="end" clip-path="url(#${metaClip})"`));
       parts.push(rect(left,top,innerWidth,r.units*unit,'#f8fafc'));
       for(let u=r.units;u>=1;u--){const uy=top+(r.units-u)*unit;parts.push(rect(left,uy,innerWidth,unit,u%2?'#f1f4f9':'#f8fafc','#e5eaf2'),text(left+10,uy+15,u,9,'#95a0b1','text-anchor="middle"'),text(left+innerWidth-10,uy+15,u,9,'#95a0b1','text-anchor="middle"'));}
       for(const d of project.devices.filter(d=>d.rackId===r.id&&(d.face===face||d.face==='both'))){
