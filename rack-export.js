@@ -6,6 +6,7 @@
     if(!racks.length)throw Error('当前机房没有机柜可导出');
     const unit=24,cardWidth=296,gap=24,columns=Math.min(4,racks.length),padding=24;
     const uses=new Map();for(const d of project.devices)for(const p of d.power)uses.set(`${p.pduId}:${p.outlet}`,{d,p});
+    for(const d of project.pdus)if(d.input)uses.set(d.input.pduId+':'+d.input.outlet,{d:{...d,color:d.color||'#8793a5'},p:d.input});
     function railHeight(r,side){return project.pdus.filter(p=>p.rackId===r.id&&p.side===side).reduce((n,p)=>n+28+p.count*22+8,0);}
     const heights=racks.map(r=>Math.max(r.units*unit,railHeight(r,'left'),railHeight(r,'right'))+82);
     const rowHeights=[];for(let i=0;i<heights.length;i+=columns)rowHeights.push(Math.max(...heights.slice(i,i+columns)));
