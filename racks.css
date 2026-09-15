@@ -33,3 +33,5 @@
 .rack-heading{padding:8px 12px}.rack-heading>div{display:flex;align-items:center;gap:8px}.rack-heading .rack-name-input{flex:1;min-width:0;width:0;margin:0;padding:3px 0}.rack-heading small{flex:0 1 auto;max-width:45%;margin:0;text-align:right;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;font-size:10px}
 
 body.rack-fullscreen .unified-header{display:none}body.rack-fullscreen .app-layout{height:100dvh;min-width:0}body.rack-fullscreen{overflow:hidden}
+
+.toolbar .mode-active{color:#5364df;background:#eef1ff;border-color:#bdc6fa}.quick-connect-mode .rack-device,.quick-connect-mode .outlet-dot,.quick-connect-mode .pdu-title{cursor:crosshair}.quick-connect-mode .outlet-dot:not(.used):not(.disabled):hover{outline:2px solid #5364df;outline-offset:1px}

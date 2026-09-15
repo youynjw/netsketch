@@ -37,6 +37,12 @@
     }
     return '';
   }
+  function defaultPower(project,device,pduId,outlet){
+    const pdu=project.pdus.find(p=>p.id===pduId);if(!pdu||pdu.rackId!==device.rackId)throw Error('请选择同一机柜内的 PDU');
+    if(outlet===undefined){outlet=Array.from({length:pdu.count},(_,i)=>i+1).find(n=>!pdu.disabled.includes(n)&&!outletUse(project,pdu.id,n));if(outlet===undefined)throw Error('此 PDU 没有空闲可用插座');}
+    let number=1;while(device.power.some(p=>p.label.trim().toLowerCase()==='psu'+number))number++;
+    const power={label:'PSU'+number,pduId,outlet,notes:''};const error=powerError(project,{...device,power:[...device.power,power]});if(error)throw Error(error);return power;
+  }
   function usedUnits(project,rackId){const used=new Set();for(const d of project.devices.filter(d=>d.rackId===rackId))for(let u=d.u;u<d.u+d.height;u++)used.add(u);return used.size;}
   function validate(raw){
     if(!raw||raw.format!=='netsketch-racks'||raw.version!==1)throw Error('请选择机柜管理项目文件（.racks.json），拓扑项目请在拓扑页面打开');
@@ -62,11 +68,11 @@
     return validate(p);
   }
   function csv(project){
-    const rows=[['机房','机柜','位置','设备名称','起始 U（底部）','高度 U','占用面','宽度位置','类型','品牌','型号','序列号','管理 IP','归属','电源接口','PDU','供电来源','插座号','插座类型','电源备注','设备备注']];
-    for(const d of project.devices){const r=project.racks.find(x=>x.id===d.rackId);const room=project.rooms.find(x=>x.id===r.roomId);for(const power of d.power.length?d.power:[null]){const p=project.pdus.find(x=>x.id===power?.pduId);rows.push([room.name,r.name,r.location,d.name,d.u,d.height,{both:'前后贯通',front:'仅前侧',rear:'仅后侧'}[d.face],{full:'全宽',left:'左半宽',right:'右半宽'}[d.slot||'full'],d.type,d.brand,d.model,d.serial,d.ip,d.owner,power?.label,p?.name,p?.feed,power?.outlet,p?.socketType,power?.notes,d.notes]);}}
+    const rows=[['机房','机柜','位置','设备名称','起始 U（顶部）','高度 U','占用面','宽度位置','类型','品牌','型号','序列号','管理 IP','归属','电源接口','PDU','供电来源','插座号','插座类型','电源备注','设备备注']];
+    for(const d of project.devices){const r=project.racks.find(x=>x.id===d.rackId);const room=project.rooms.find(x=>x.id===r.roomId);for(const power of d.power.length?d.power:[null]){const p=project.pdus.find(x=>x.id===power?.pduId);rows.push([room.name,r.name,r.location,d.name,d.u+d.height-1,d.height,{both:'前后贯通',front:'仅前侧',rear:'仅后侧'}[d.face],{full:'全宽',left:'左半宽',right:'右半宽'}[d.slot||'full'],d.type,d.brand,d.model,d.serial,d.ip,d.owner,power?.label,p?.name,p?.feed,power?.outlet,p?.socketType,power?.notes,d.notes]);}}
     const cell=v=>{let s=String(v??'');if(/^[\s]*[=+@-]/.test(s))s="'"+s;return '"'+s.replaceAll('"','""')+'"';};
     return '\uFEFF'+rows.map(r=>r.map(cell).join(',')).join('\r\n');
   }
-  const api={TYPES,COLORS,id,empty,placementError,powerError,outletUse,usedUnits,validate,demo,csv};
+  const api={TYPES,COLORS,id,empty,placementError,powerError,outletUse,defaultPower,usedUnits,validate,demo,csv};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.RackModel=api;
 })(globalThis);
