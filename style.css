@@ -37,3 +37,5 @@ main>.library,main>.inspector{position:relative;padding:0;overflow:hidden;min-he
 #canvas.connect-mode .region-node:not(.locked),#canvas.connect-mode .text-node,#canvas.connect-mode .resize-handle{cursor:grab}
 #canvas.connect-mode:active .node,#canvas.connect-mode:active .resize-handle,#canvas.connect-mode:active .edge-hit{cursor:grabbing}
 #canvas.connect-mode .edge-hit{cursor:grab}#canvas.connect-mode:active .edge-hit{cursor:grabbing}
+
+.region-name{cursor:text}.region-title.editing-name{overflow:visible}.region-title .node-name-input{width:100%;font:inherit;color:inherit;padding:0 3px;line-height:1.2}
