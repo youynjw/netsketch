@@ -36,3 +36,4 @@ main>.library,main>.inspector{position:relative;padding:0;overflow:hidden;min-he
 
 #canvas.connect-mode .region-node:not(.locked),#canvas.connect-mode .text-node,#canvas.connect-mode .resize-handle{cursor:grab}
 #canvas.connect-mode:active .node,#canvas.connect-mode:active .resize-handle,#canvas.connect-mode:active .edge-hit{cursor:grabbing}
+#canvas.connect-mode .edge-hit{cursor:grab}#canvas.connect-mode:active .edge-hit{cursor:grabbing}
