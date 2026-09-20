@@ -35,3 +35,7 @@
 body.rack-fullscreen .unified-header{display:none}body.rack-fullscreen .app-layout{height:100dvh;min-width:0}body.rack-fullscreen{overflow:hidden}
 
 .toolbar .mode-active{color:#5364df;background:#eef1ff;border-color:#bdc6fa}.quick-connect-mode .rack-device,.quick-connect-mode .outlet-dot,.quick-connect-mode .pdu-title{cursor:crosshair}.quick-connect-mode .outlet-dot:not(.used):not(.disabled):hover{outline:2px solid #5364df;outline-offset:1px}
+
+.board-scroll{cursor:grab;touch-action:none}.board-scroll .u-row>button{cursor:grab}.board-scroll.board-panning,.board-scroll.board-panning *{cursor:grabbing!important;user-select:none}
+
+.rack-device{cursor:move}

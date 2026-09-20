@@ -89,10 +89,10 @@ function connectPower(device,presetPdu,presetOutlet){
   let nextPsu=1;const sourceDevice=device||devices[0];while(sourceDevice.power.some(p=>p.label.trim().toLowerCase()===`psu${nextPsu}`))nextPsu++;
   openEditor('连接设备电源',selectField('设备','deviceId',(device?[device]:devices).map(d=>[d.id,d.name]),device?.id||devices[0].id)+field('电源接口名称','label',`PSU${nextPsu}`,'text','required maxlength="80"')+selectField('PDU / 插座号','target',available.map(a=>[`${a.p.id}|${a.n}`,`${a.p.name} / ${a.n} · ${a.p.feed||a.p.socketType}`]),`${target.p.id}|${target.n}`)+textField('接线备注','notes','')+'<p class="inline-note">仅列出本机柜的空闲、未停用插座。插座状态根据记录计算，不代表实时通断电。</p>',v=>{const d=project.devices.find(d=>d.id===v.deviceId),found=available.find(a=>`${a.p.id}|${a.n}`===v.target);if(!d||!found)return '设备或插座已变更，请重新选择';const power={label:v.label.trim(),pduId:found.p.id,outlet:found.n,notes:v.notes};const error=M.powerError(project,{...d,power:[...d.power,power]});if(error)return error;commit(()=>{d.power.push(power);selection={kind:'device',id:d.id};});});
 }
-$('#board').addEventListener('dragstart',e=>{if(colorBrush||quickConnection){e.preventDefault();return;}const node=e.target.closest('[data-device]');if(!node)return;dragId=node.dataset.device;e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move';node.classList.add('dragging');});
+$('#board').addEventListener('dragstart',e=>{if(colorBrush||quickConnection){e.preventDefault();return;}const node=e.target.closest('[data-device]');if(!node)return;dragId=node.dataset.device;e.dataTransfer.setData('text/plain',dragId);e.dataTransfer.effectAllowed='move';const bounds=node.getBoundingClientRect();e.dataTransfer.setDragImage(node,Math.max(0,Math.min(bounds.width,e.clientX-bounds.left)),0);node.classList.add('dragging');});
 function dropPoint(e){const target=e.target.closest('[data-drop-rack]');if(!target)return null;const r=project.racks.find(r=>r.id===target.dataset.dropRack),rect=target.getBoundingClientRect();return {r,u:Math.max(1,Math.min(r.units,r.units-Math.floor((e.clientY-rect.top)/(rect.height/r.units))))};}
-$('#board').addEventListener('dragover',e=>{if(!dragId)return;const point=dropPoint(e);if(!point)return;e.preventDefault();e.dataTransfer.dropEffect='move';$('.drop-target')?.classList.remove('drop-target');const rack=[...document.querySelectorAll('[data-drop-rack]')].find(el=>el.dataset.dropRack===point.r.id);rack?.querySelector(`[data-u="${point.u}"]`)?.classList.add('drop-target');});
-$('#board').addEventListener('drop',e=>{if(!dragId)return;e.preventDefault();const point=dropPoint(e),d=project.devices.find(d=>d.id===dragId);dragId=null;$('.drop-target')?.classList.remove('drop-target');$('.dragging')?.classList.remove('dragging');if(!point||!d)return;const u=point.u-d.height+1,next={...d,rackId:point.r.id,u},error=M.placementError(project,next);if(error){toast(error);return;}if(next.rackId===d.rackId&&u===d.u){select('device',d.id);return;}if(next.rackId!==d.rackId&&d.power.length){moveDeviceDialog(d,next.rackId,u);return;}commit(()=>{d.rackId=next.rackId;d.u=u;selection={kind:'device',id:d.id};});toast(`已移动至 ${point.r.name} · U${u}`);});
+$('#board').addEventListener('dragover',e=>{if(!dragId)return;const point=dropPoint(e);if(!point)return;e.preventDefault();e.dataTransfer.dropEffect='move';document.querySelectorAll('.drop-target').forEach(el=>el.classList.remove('drop-target'));const rack=[...document.querySelectorAll('[data-drop-rack]')].find(el=>el.dataset.dropRack===point.r.id);const d=project.devices.find(d=>d.id===dragId);for(let u=point.u;u>=Math.max(1,point.u-(d?.height||1)+1);u--)rack?.querySelector(`[data-u="${u}"]`)?.classList.add('drop-target');});
+$('#board').addEventListener('drop',e=>{if(!dragId)return;e.preventDefault();const point=dropPoint(e),d=project.devices.find(d=>d.id===dragId);dragId=null;$('.drop-target')?.classList.remove('drop-target');$('.dragging')?.classList.remove('dragging');if(!point||!d)return;const u=point.u-d.height+1,next={...d,rackId:point.r.id,u},error=M.placementError(project,next);if(error){toast(error);return;}if(next.rackId===d.rackId&&u===d.u){select('device',d.id);return;}if(next.rackId!==d.rackId&&d.power.length){moveDeviceDialog(d,next.rackId,u);return;}commit(()=>{d.rackId=next.rackId;d.u=u;selection={kind:'device',id:d.id};});toast(`已移动至 ${point.r.name} · 顶部 U${point.u}${d.height>1?' · 占用 U'+u+'–'+point.u:''}`);});
 $('#board').addEventListener('dragend',()=>{dragId=null;$('.drop-target')?.classList.remove('drop-target');$('.dragging')?.classList.remove('dragging');});
 function download(content,type,name){const url=URL.createObjectURL(new Blob([content],{type})),a=document.createElement('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function filename(){return (project.name||'机柜记录').replace(/[\\/:*?"<>|]/g,'_');}
@@ -153,3 +153,29 @@ function bindPduInput(p){$('#changePduInput').onclick=()=>editPduInput(p);if(p.i
 function editPduInput(p){const choices=[];for(const up of project.pdus){for(let n=1;n<=up.count;n++){const input={label:'INPUT',pduId:up.id,outlet:n};if(!M.pduInputError(project,p,input)){const r=project.racks.find(r=>r.id===up.rackId),room=project.rooms.find(x=>x.id===r.roomId);choices.push({input,label:room.name+' / '+r.name+' / '+up.name+' / '+n});}}}if(!choices.length){toast('没有可用的上级 PDU 插座');return;}openEditor('连接上级 PDU',selectField('上级插座','target',choices.map((c,i)=>[String(i),c.label]),String(Math.max(0,choices.findIndex(c=>c.input.pduId===p.input?.pduId&&c.input.outlet===p.input?.outlet))))+'<p class="inline-note">接口名称为 INPUT，每台 PDU 仅记录一个供电输入。</p>',v=>{const input=choices[Number(v.target)]?.input,error=M.pduInputError(project,p,input);if(error)return error;stopQuickConnection();commit(()=>p.input={...input,notes:''});});}
 $('#rackConnectTool').onclick=()=>{if(quickConnection){stopQuickConnection();return;}if(colorBrush)stopColorBrush();quickConnection={deviceId:null};refreshQuickConnection();};
 $('#rackSelectTool').onclick=()=>{if(colorBrush)stopColorBrush();stopQuickConnection();};
+
+function installBoardPan(scroller){
+  let pan=null,suppressClick=false;
+  scroller.addEventListener('pointerdown',e=>{
+    suppressClick=false;
+    if(e.button!==0||e.target.closest('input,textarea,select,a,[contenteditable="true"]'))return;
+    const button=e.target.closest('button');
+    if(button&&!button.hasAttribute('data-add-at'))return;
+    const rect=scroller.getBoundingClientRect();
+    if(e.clientX>=rect.left+scroller.clientWidth||e.clientY>=rect.top+scroller.clientHeight)return;
+    pan={id:e.pointerId,x:e.clientX,y:e.clientY,left:scroller.scrollLeft,top:scroller.scrollTop,dragged:false};
+  });
+  scroller.addEventListener('pointermove',e=>{
+    if(!pan||pan.id!==e.pointerId)return;
+    const dx=e.clientX-pan.x,dy=e.clientY-pan.y;
+    if(!pan.dragged&&Math.hypot(dx,dy)<4)return;
+    if(!pan.dragged){pan.dragged=true;scroller.setPointerCapture(e.pointerId);scroller.classList.add('board-panning');}
+    e.preventDefault();scroller.scrollLeft=pan.left-dx;scroller.scrollTop=pan.top-dy;
+  });
+  const finish=e=>{if(!pan||e.pointerId!==pan.id)return;suppressClick=pan.dragged;pan=null;scroller.classList.remove('board-panning');if(scroller.hasPointerCapture(e.pointerId))scroller.releasePointerCapture(e.pointerId);};
+  scroller.addEventListener('pointerup',finish);
+  scroller.addEventListener('pointercancel',finish);
+  scroller.addEventListener('lostpointercapture',finish);
+  scroller.addEventListener('click',e=>{if(suppressClick){suppressClick=false;e.preventDefault();e.stopImmediatePropagation();}},true);
+}
+installBoardPan($('#boardScroll'));

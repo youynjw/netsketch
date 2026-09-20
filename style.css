@@ -26,7 +26,7 @@ main>.library,main>.inspector{position:relative;padding:0;overflow:hidden;min-he
 
 .rack-page-link{display:inline-flex;align-items:center;padding:8px 12px;border:1px solid #dce2f5;border-radius:7px;color:#5364df;text-decoration:none;background:#f5f7ff;white-space:nowrap}.rack-page-link:hover{background:#eaf0ff}
 
-.region-node.locked{cursor:grab}.region-title{padding-right:26px}.region-lock{position:absolute;right:6px;top:6px;width:26px;height:26px;padding:0;border:0;background:#ffffffb3;border-radius:5px;cursor:pointer;font-size:13px;opacity:0}.region-node:hover .region-lock,.region-node.selected .region-lock,.region-node.locked .region-lock,.region-lock:focus-visible{opacity:1}
+.region-node.locked{cursor:grab}.region-title{padding-left:26px;padding-right:0}.region-lock{position:absolute;left:6px;top:10px;width:26px;height:26px;padding:0;border:0;background:#ffffffb3;border-radius:5px;cursor:pointer;font-size:13px;opacity:0}.region-node:hover .region-lock,.region-node.selected .region-lock,.region-node.locked .region-lock,.region-lock:focus-visible{opacity:1}
 
 /* Blank canvas supports panning in both selection and connection modes. */
 #canvas{cursor:grab}
